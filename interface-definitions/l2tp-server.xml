@@ -275,13 +275,21 @@
                 <children>
                   <leafNode name="prefix">
                     <properties>
-                      <help>Format: ipv6prefix/mask,prefix_len (e.g.: fc00:0:1::/48,64 - divides prefix into /64 subnets for clients)</help>
+                      <help>IPV6 prefix delegation</help>
+                      <valueHelp>
+                        <format>ipv6prefix/mask,prefix_len</format>
+                        <description>e.g.: fc00:0:1::/48,64 - divides prefix into /64 subnets for clients</description>
+                      </valueHelp>
                       <multi />
                     </properties>
                   </leafNode>
                   <leafNode name="delegate-prefix">
                     <properties>
-                      <help>Format: ipv6prefix/mask,prefix_len (delegate to clients through DHCPv6 prefix delegation - rfc3633)</help>
+                      <help>DHCPv6 prefix delegation - rfc3633</help>
+                      <valueHelp>
+                        <format>ipv6prefix/mask,prefix_len</format>
+                        <description>Delegate to clients through DHCPv6 prefix delegation - rfc3633</description>
+                      </valueHelp>
                       <multi />
                     </properties>
                   </leafNode>
