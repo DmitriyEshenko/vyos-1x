@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<interfaceDefinition>
+  <node name="show">
+    <children>
+      <node name="system">
+        <children>
+          <node name="acceleration">
+            <properties>
+              <help>Acceleration components</help>
+            </properties>
+            <children>
+              <node name="qat">
+                <properties>
+                  <help>Intel QAT (Quick Assist Technology) Devices</help>
+                </properties>
+                <children>
+                  <node name="status">
+                    <properties>
+                      <help>Intel QAT status</help>
+                    </properties>
+                    <command>${vyos_op_scripts_dir}/show_acceleration.py --status</command>
+                  </node>
+                  <node name="flows">
+                    <properties>
+                      <help>Intel QAT flows</help>
+                    </properties>
+                    <command>${vyos_op_scripts_dir}/show_acceleration.py --fw</command>
+                  </node>
+                  <node name="interrupts">
+                    <properties>
+                      <help>Intel QAT interrupts</help>
+                    </properties>
+                    <command>${vyos_op_scripts_dir}/show_acceleration.py --intr</command>
+                  </node>
+                </children>
+                <command>${vyos_op_scripts_dir}/show_acceleration.py --hw</command>
+              </node>
+            </children>
+          </node>
+        </children>
+      </node>
+    </children>
+  </node>
+</interfaceDefinition>
