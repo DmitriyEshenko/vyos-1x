@@ -18,8 +18,7 @@
 
 import sys
 import os
-import time
-import syslog as sl
+import re
 import subprocess
 
 from vyos.config import Config
@@ -59,13 +58,22 @@ def vpn_control(action):
   (output, err) = ret.communicate()
 
 def verify(c):
-  print(c)
   # Check if QAT service installed
-  if not os.path.exists('/etc/init.d/qat_service'):
+  if not os.path.exists('/etc/init.d/vyos-qat-utilities'):
     raise ConfigError("Warning: QAT init file not found")
 
   if c['qat_conf'] == None:
-    return
+    return 
+
+  # Check if QAT device exist 
+  ret = subprocess.Popen(['sudo', 'lspci',  '-nn'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+  (output, err) = ret.communicate()
+  if not err:
+    data = re.findall('(8086:19e2)|(8086:37c8)|(8086:0435)|(8086:6f54)', output.decode("utf-8"))
+    #If QAT devices found
+    if not data:
+      print("\t No QAT acceleration device found")
+      sys.exit(1)
 
 def apply(c):
   if c['ipsec_conf']:
@@ -74,14 +82,13 @@ def apply(c):
 
   # Disable QAT service
   if c['qat_conf'] == None:
-    ret = subprocess.Popen(['sudo', '/etc/init.d/qat_service', 'stop'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    ret = subprocess.Popen(['sudo', '/etc/init.d/vyos-qat-utilities', 'stop'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     (output, err) = ret.communicate()
-    sl.syslog(sl.LOG_NOTICE, "QAT acceleration service terminated")
     vpn_control('start')
     return
 
   # Run qat init.d script
-  ret = subprocess.Popen(['sudo', '/etc/init.d/qat_service', 'start'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+  ret = subprocess.Popen(['sudo', '/etc/init.d/vyos-qat-utilities', 'start'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
   (output, err) = ret.communicate()
 
   if c['ipsec_conf']:

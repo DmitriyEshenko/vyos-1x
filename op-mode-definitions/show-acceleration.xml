@@ -24,13 +24,19 @@
                     <properties>
                       <help>Intel QAT flows</help>
                     </properties>
-                    <command>${vyos_op_scripts_dir}/show_acceleration.py --fw</command>
+                    <command>${vyos_op_scripts_dir}/show_acceleration.py --flow</command>
                   </node>
                   <node name="interrupts">
                     <properties>
                       <help>Intel QAT interrupts</help>
                     </properties>
                     <command>${vyos_op_scripts_dir}/show_acceleration.py --intr</command>
+                  </node>
+                  <node name="config">
+                    <properties>
+                      <help>Intel QAT configuration</help>
+                    </properties>
+                    <command>${vyos_op_scripts_dir}/show_acceleration.py --conf</command>
                   </node>
                 </children>
                 <command>${vyos_op_scripts_dir}/show_acceleration.py --hw</command>
