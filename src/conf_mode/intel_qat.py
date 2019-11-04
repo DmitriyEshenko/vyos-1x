@@ -37,7 +37,7 @@ def get_config():
 
   if c.exists('system acceleration qat'):
     config_data['qat_conf'] = True
-    
+
   if c.exists('vpn ipsec '):
     gl_ipsec_conf = True
     config_data['ipsec_conf'] = True
@@ -47,7 +47,7 @@ def get_config():
 
   return config_data
 
-# Control configured VPN service which can use QAT 
+# Control configured VPN service which can use QAT
 def vpn_control(action):
   if action == 'restore' and gl_ipsec_conf:
     ret = subprocess.Popen(['sudo', 'ipsec', 'start'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -63,9 +63,9 @@ def verify(c):
     raise ConfigError("Warning: QAT init file not found")
 
   if c['qat_conf'] == None:
-    return 
+    return
 
-  # Check if QAT device exist 
+  # Check if QAT device exist
   ret = subprocess.Popen(['sudo', 'lspci',  '-nn'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
   (output, err) = ret.communicate()
   if not err:
