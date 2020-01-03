@@ -25,10 +25,30 @@
             <properties>
               <help>Access concentrator name</help>
               <constraint>
-                <regex>^[a-zA-Z0-9]{1,100}</regex>
+                <regex>[a-zA-Z0-9]{1,100}</regex>
               </constraint>
-              <constraintErrorMessage>access-concentrator name limited to aplhanumerical characters only (max. 100)</constraintErrorMessage>
-            </properties>  
+              <constraintErrorMessage>access-concentrator name limited to alphanumerical characters only (max. 100)</constraintErrorMessage>
+            </properties>
+          </leafNode>
+          <leafNode name="session-control">
+            <properties>
+              <help>control sessions count</help>
+              <constraint>
+                <regex>(deny|disable)</regex>
+              </constraint>
+              <constraintErrorMessage>Invalid value</constraintErrorMessage>
+              <valueHelp>
+                <format>disable</format>
+                <description>Disables session control</description>
+              </valueHelp>
+              <valueHelp>
+                <format>deny</format>
+                <description>Deny second session authorization</description>
+              </valueHelp>
+              <completionHelp>
+                <list>deny disable</list>
+              </completionHelp>
+            </properties>
           </leafNode>
           <node name="authentication">
             <properties>
@@ -60,6 +80,29 @@
                           <help>Static client IP address</help>
                         </properties>
                       </leafNode>
+                      <node name="rate-limit">
+                        <properties>
+                          <help>Upload/Download speed limits</help>
+                        </properties>
+                        <children>
+                          <leafNode name="upload">
+                            <properties>
+                              <help>Upload bandwidth limit in kbits/sec</help>
+                              <constraint>
+                                <validator name="numeric" argument="--range 1-65535"/>
+                              </constraint>
+                            </properties>
+                          </leafNode>
+                          <leafNode name="download">
+                            <properties>
+                              <help>Download bandwidth limit in kbits/sec</help>
+                              <constraint>
+                                <validator name="numeric" argument="--range 1-65535"/>
+                              </constraint>
+                            </properties>
+                          </leafNode>
+                        </children>
+                      </node>
                     </children>
                   </tagNode>
                 </children>
@@ -76,7 +119,7 @@
                     <description>Use a RADIUS server to autenticate users</description>
                   </valueHelp>
                   <constraint>
-                    <regex>^(local|radius)</regex>
+                    <regex>(local|radius)</regex>
                   </constraint>
                   <completionHelp>
                     <list>local radius</list>
@@ -104,7 +147,7 @@
                   </leafNode>
                   <leafNode name="fail-time">
                     <properties>
-                      <help>If server doesn't responds mark it as unavailable for this amount of time in seconds</help>
+                      <help>If server does not responds mark it as unavailable for this amount of time in seconds</help>
                     </properties>
                   </leafNode>
                 </children>
@@ -161,6 +204,29 @@
                       </leafNode>
                     </children>
                   </node>
+                  <node name="rate-limit">
+                    <properties>
+                      <help>Upload/Download speed limits</help>
+                    </properties>
+                    <children>
+                      <leafNode name="attribute">
+                        <properties>
+                          <help>Specifies which radius attribute contains rate information. (default is Filter-Id)</help>
+                        </properties>
+                      </leafNode>
+                      <leafNode name="vendor">
+                        <properties>
+                          <help>Specifies the vendor dictionary. (dictionary needs to be in /usr/share/accel-ppp/radius)</help>
+                        </properties>
+                      </leafNode>
+                      <leafNode name="enable">
+                        <properties>
+                          <help>Enables Bandwidth shaping via RADIUS</help>
+                          <valueless />
+                        </properties>
+                      </leafNode>
+                    </children>
+                  </node>
                 </children>
               </node>
             </children>
@@ -198,7 +264,6 @@
               </leafNode>
             </children>
           </node>
-
           <node name="client-ipv6-pool">
             <properties>
               <help>Pool of client IPv6 addresses</help>
@@ -248,7 +313,7 @@
               </properties>
             </leafNode>
             </children>
-          </node> 
+          </node>
            <node name="dnsv6-servers">
             <properties>
               <help>IPv6 Domain Name Service (DNS) server</help>
@@ -292,15 +357,36 @@
               </leafNode>
             </children>
           </node>
-          <leafNode name="interface">
+
+          <tagNode name="interface">
             <properties>
               <help>interface(s) to listen on</help>
               <completionHelp>
                 <script>${vyos_completion_dir}/list_interfaces.py</script>
               </completionHelp>
-              <multi/>
             </properties>
-          </leafNode>
+            <children>
+              <leafNode name="vlan-id">
+                <properties>
+                  <help>VLAN monitor for the automatic creation of vlans (user per vlan)</help>
+                  <constraint>
+                        <validator name="numeric" argument="--range 1-4096"/>
+                      </constraint>
+                      <constraintErrorMessage>VLAN ID needs to be between 1 and 4096</constraintErrorMessage>
+                      <multi />
+                </properties>
+              </leafNode>
+              <leafNode name="vlan-range">
+                <properties>
+                  <help>VLAN monitor for the automatic creation of vlans (user per vlan)</help>
+                  <constraint>
+                    <regex>(409[0-6]|40[0-8][0-9]|[1-3][0-9]{3}|[1-9][0-9]{0,2})-(409[0-6]|40[0-8][0-9]|[1-3][0-9]{3}|[1-9][0-9]{0,2})</regex>
+                  </constraint>
+                  <multi />
+                </properties>
+              </leafNode>
+            </children>
+          </tagNode>
           <leafNode name="local-ip">
             <properties>
               <help>local gateway address</help>
@@ -326,7 +412,7 @@
                 <properties>
                   <help>Acceptable rate of connections (e.g. 1/min, 60/sec)</help>
                   <constraint>
-                    <regex>^[0-9]+\/(min|sec)$</regex>
+                    <regex>[0-9]+\/(min|sec)$</regex>
                   </constraint>
                   <constraintErrorMessage>illegal value</constraintErrorMessage>
                 </properties>
@@ -343,30 +429,11 @@
               </leafNode>
             </children>
           </node>
-          <node name="radius">
-            <properties>
-              <help>RADIUS settings</help>
-            </properties>
-            <children>
-              <leafNode name="default-interim-interval">
-                <properties>
-                  <help>Default interim accounting interval</help>
-                  <valueHelp>
-                    <format>text</format>
-                    <description>Use local username/password configuration</description>
-                  </valueHelp>
-                  <constraint>
-                    <validator name="numeric" argument="--range 60-10000000"/>
-                  </constraint>
-                </properties>
-              </leafNode>
-            </children>
-          </node>
           <leafNode name="service-name">
             <properties>
               <help>Service name</help>
               <constraint>
-                <regex>^[a-zA-Z0-9\-]{1,100}</regex>
+                <regex>[a-zA-Z0-9\-]{1,100}</regex>
               </constraint>
               <constraintErrorMessage>servicename can contain aplhanumerical characters and dashes only (max. 100)</constraintErrorMessage>
             </properties>
@@ -434,7 +501,7 @@
                   </leafNode>
                   <leafNode name="prefer">
                     <properties>
-                      <help>Ask client for MPPE, if it rejects don't fail</help>
+                      <help>Ask client for MPPE, if it rejects do not fail</help>
                       <valueless />
                     </properties>
                   </leafNode>
@@ -474,12 +541,12 @@
                 <properties>
                   <help>IPv4 (IPCP) negotiation algorithm</help>
                   <constraint>
-                    <regex>^(deny|allow|prefer|require)</regex>
+                    <regex>(deny|allow|prefer|require)</regex>
                   </constraint>
                   <constraintErrorMessage>invalid value</constraintErrorMessage>
                   <valueHelp>
                     <format>deny</format>
-                    <description>Don't negotiate IPv4</description>
+                    <description>Do not negotiate IPv4</description>
                   </valueHelp>
                   <valueHelp>
                     <format>allow</format>
@@ -487,7 +554,7 @@
                   </valueHelp>
                   <valueHelp>
                     <format>prefer</format>
-                    <description>Ask client for IPv4 negotiation, don't fail if it rejects</description>
+                    <description>Ask client for IPv4 negotiation, do not fail if it rejects</description>
                   </valueHelp>
                   <valueHelp>
                     <format>require</format>
@@ -499,12 +566,12 @@
                 <properties>
                   <help>IPv6 (IPCP6) negotiation algorithm</help>
                   <constraint>
-                    <regex>^(deny|allow|prefer|require)</regex>
+                    <regex>(deny|allow|prefer|require)</regex>
                   </constraint>
                   <constraintErrorMessage>invalid value</constraintErrorMessage>
                   <valueHelp>
                     <format>deny</format>
-                    <description>Don't negotiate IPv6</description>
+                    <description>Do not negotiate IPv6</description>
                   </valueHelp>
                   <valueHelp>
                     <format>allow</format>
@@ -512,7 +579,7 @@
                   </valueHelp>
                   <valueHelp>
                     <format>prefer</format>
-                    <description>Ask client for IPv6 negotiation, don't fail if it rejects</description>
+                    <description>Ask client for IPv6 negotiation, do not fail if it rejects</description>
                   </valueHelp>
                   <valueHelp>
                     <format>require</format>
@@ -556,8 +623,8 @@
               </leafNode>
               <leafNode name="ipv6-accept-peer-intf-id">
                 <properties>
-                  <help>Accept peer's interface identifier</help>
-                  <valueless /> 
+                  <help>Accept peer interface identifier</help>
+                  <valueless />
                 </properties>
               </leafNode>
             </children>

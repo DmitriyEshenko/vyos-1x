@@ -11,7 +11,7 @@
             <properties>
               <help>Show active PPPoE server sessions</help>
             </properties>
-            <command>/usr/bin/accel-cmd 'show sessions'</command>
+            <command>/usr/bin/accel-cmd 'show sessions ifname,username,ip,ip6,ip6-dp,calling-sid,rate-limit,state,uptime,rx-bytes,tx-bytes'</command>
           </leafNode>
           <leafNode name="statistics">
             <properties>
@@ -25,6 +25,48 @@
             </properties>
             <command>/usr/bin/accel-cmd 'pppoe interface show'</command>
           </leafNode>
+        </children>
+      </node>
+    </children>
+  </node>
+  <node name="restart">
+    <children>
+      <leafNode name="pppoe-server">
+        <properties>
+          <help>Restarts pppoe-server</help>
+        </properties>
+        <command>if [ -e /var/run/accel_pppoe.pid ]; then /usr/bin/accel-cmd restart -p 2001; else echo "pppoe-server not running"; fi</command> 
+      </leafNode>
+    </children>
+  </node>
+  <node name="reset">
+    <properties>
+      <help>Reset a service</help>
+    </properties>
+    <children>
+      <node name="pppoe-server">
+        <properties>
+          <help>Reset PPPoE server sessions</help>
+        </properties>
+        <children>
+          <leafNode name="all">
+            <properties>
+              <help>Terminate all pppoe-server users</help>
+            </properties>
+            <command>/usr/bin/accel-cmd terminate all</command>
+          </leafNode>
+          <tagNode name="interface">
+            <properties>
+              <help>Terminate a ppp interface</help>
+            </properties>
+            <command>/usr/bin/accel-cmd terminate if "$4"</command>
+          </tagNode>
+          <tagNode name="username">
+            <properties>
+              <help>Terminate specified users</help>
+            </properties>
+            <command>/usr/bin/accel-cmd terminate match username "$4"</command>
+          </tagNode>
         </children>
       </node>
     </children>
