@@ -676,7 +676,7 @@ class Interface(Control):
         elif addr == 'dhcpv6':
             self.dhcp.v6.set()
         elif not is_intf_addr_assigned(self.ifname, addr):
-            self._cmd(f'ip addr add "{addr}" dev "{self.ifname}"')
+            self._cmd(f'ip addr add "{addr}" broadcast + dev "{self.ifname}"')
         else:
             return False
 
